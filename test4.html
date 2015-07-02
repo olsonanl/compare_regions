@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="dijit/themes/claro/claro.css">
+
+    <script>
+    // Instead of using data-dojo-config, we're creating a dojoConfig
+    // object *before* we load dojo.js; they're functionally identical,
+    // it's just easier to read this approach with a larger configuration.
+    var dojoConfig = {
+	async: true,
+	//	forceGfxRenderer:'canvas',
+	// This code registers the correct location of the "demo"
+	// package so we can load Dojo from the CDN whilst still
+	// being able to load local modules
+	paths: {
+	    local: location.pathname.replace(/\/[^/]*$/, '')
+    }
+};
+</script>
+    <!-- load Dojo -->
+    <script src="dojo/dojo.js"></script>
+
+  </head>
+  <body class="claro">
+    <script type="text/javascript">
+require(['dojo/dom',
+	 'seed/seed-compare-widget',
+	 'dojo/domReady!'],
+	function (dom) {
+	    
+	    window.console.log("loading!");
+	});
+
+</script>
+
+    <span data-dojo-type="seed.CompareRegionsWidget"
+	  data-dojo-props="focus_feature: 'fig|83333.1.peg.4',
+			   service_url: 'http://localhost:6012/FIG/seed_svc.cgi',
+			   width: 6000,
+			   n_genomes: 6"></span>
+
+</body>
+</html>

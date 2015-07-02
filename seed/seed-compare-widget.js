@@ -4,9 +4,9 @@ define([
     'dojo/ready',
     'dijit/_WidgetBase',
     'dijit/_TemplatedMixin',
-    'dojo/text!local/seed-compare-template.html',
-    'local/compare-regions-dojo',
-    'local/SEEDClient-dojo'
+    'dojo/text!seed/seed-compare-template.html',
+    'seed/compare-regions',
+    'seed/SEEDClient'
 ], function(declare, parser, ready, _WidgetBase, _TemplatedMixin, template,
 	    CompareRegions, SEEDClient) {
     declare("seed.CompareRegionsWidget", [_WidgetBase, _TemplatedMixin], {
