@@ -1,6 +1,154 @@
 <div>
-  <button data-dojo-attach-event='onclick: left_2'>&lt;&lt;</button>
-  <button data-dojo-attach-event='onclick: right_2'>&gt;&gt;</button>
-  &nbsp;fid: <span data-dojo-attach-point='fid'></span>
-  <div data-dojo-attach-point='canvas'> </div>
+  <div data-dojo-type="dojox.layout.TableContainer" data-dojo-props="cols:1" id="tc1" labelWidth="150">
+    <div data-dojo-type="dijit/layout/ContentPane" title="Pinned CDS selection">
+      <input type='radio'  style="padding: none"
+	     name='display_options'
+	     checked
+	     id='display_options_regular'
+	     data-dojo-attach-event="onchange: display_regular"
+	     value='regular'/>
+      <label for='display_options_regular'>Regular</label>
+      <input type='radio' style="padding: none"
+	     name='display_options'
+	     data-dojo-attach-event="onchange: display_advanced"
+	     id='display_options_advanced'
+	     value='advanced'/>
+      <label for='display_options_advanced'>Advanced</label>
+    </div>
+
+    <input id='region_size'
+	   type='text'
+	   title="Region Size (bp)"
+	   data-dojo-type='dijit.form.NumberTextBox'
+	   data-dojo-attach-point='region_size'
+	   name='region_size'
+	   required='true'
+	   value='16000'
+	   data-dojo-props='constraints: { min: 0, places: 0 }'
+	   />
+    <input id='n_regions'
+	   title='Number of Regions',
+	   type='text'
+	   data-dojo-type='dijit/form/NumberTextBox'
+	   data-dojo-attach-point='n_regions'
+	   name='n_regions'
+	   required='true'
+	   value='15'
+	   data-dojo-props='constraints: { min: 1, places: 0 }'
+	   />
+  </div>
+  <div title="Advanced settings" data-dojo-attach-point="advanced_settings">
+    <div data-dojo-type="dojox.layout.TableContainer" data-dojo-props="cols:1" id="tc2" labelWidth="150">
+      <div data-dojo-type="dijit/layout/ContentPane" title="Pinned CDS selection" style="padding: 0;  ">
+	<input type='radio'
+	       name='select_pinned_pegs'
+	       checked
+	       id='select_pinned_pegs_sim'
+	       value='sim'/>
+	<label for='select_pinned_pegs_sim'>Similarity</label>
+	<input type='radio'
+	       name='select_pinned_pegs'
+	       id='select_pinned_pegs_kmer'
+	       value='kmer'/>
+	<label for='select_pinned_pegs_sim'>Kmer</label>
+	<input type='radio'
+	       name='select_pinned_pegs'
+	       id='select_pinned_pegs_pch'
+	       value='pch'/>
+	<label for='select_pinned_pegs_pch'>PCH pin</label>
+      </div>
+      
+      <div data-dojo-type="dijit/layout/ContentPane" title="Genome selection" style="padding: 0;  ">
+	<input type='radio'
+	       name='genome_selection'
+	       id='genome_selection_close'
+	       checked
+	       value='close'/>
+	<label for='genome_selection_pegs_close'>Collapse close genomes</label>
+	<input type='radio'
+	       name='genome_selection'
+	       id='genome_selection_iden'
+	       value='iden'/>
+	<label for='genome_selection_pegs_iden'>Collapse identical tax-ids</label>
+	<input type='radio'
+	       name='genome_selection'
+	       id='genome_selection_all'
+	       value='all'/>
+	<label for='genome_selection_all'>Show all</label>
+      </div>
+      
+      <div data-dojo-type="dijit/layout/ContentPane" title="Sort genomes by" style="padding: 0;  ">
+	<input type='radio'
+	       name='genome_sort'
+	       id='genome_sort_sim'
+	       checked
+	       value='sim'/>
+	<label for='genome_sort_sim'>Similarity to input CDS</label>
+	<input type='radio'
+	       name='genome_sort'
+	       id='genome_sort_input_phylo'
+	       value='input_phylo'/>
+	<label for='genome_sort_input_phylo'>Phylogenetic distance to input CDS</label>
+	<input type='radio'
+	       name='genome_sort'
+	       id='genome_sort_phylo'
+	       value='phylo'/>
+	<label for='genome_sort_phylo'>Phylogeny</label>
+      </div>
+      <input id='pin_cutoff'
+	     title='Evalue cutoff for selection of pinned CDSs'
+	     type='text'
+	     data-dojo-type='dijit/form/TextBox'
+	     data-dojo-attach-point='pin_cutoff'
+	     name='pin_cutoff'
+	     required='true'
+	     value='1e-20'
+	     />
+      <input id='coloring_cutoff'
+	     title='Evalue cutoff for coloring CDS sets'
+	     type='text'
+	     data-dojo-type='dijit/form/TextBox'
+	     data-dojo-attach-point='coloring_cutoff'
+	     name='coloring_cutoff'
+	     required='true'
+	     value='1e-20'
+	     />
+      <div data-dojo-type="dijit/layout/ContentPane" title="Coloring algorithm" style="padding: 0; margin: 0; ">
+	<input type='radio'
+	       name='coloring_algo'
+	       id='coloring_algo_fast'
+	       checked
+	       value='fast'/>
+	<label for='coloring_algo_fast'>Fast</label>
+	<input type='radio'
+	       name='coloring_algo'
+	       id='coloring_algo_slow'
+	       value='slow'/>
+	<label for='coloring_algo_slow'>Slower (but exact)</label>
+	<input type='radio'
+	       name='coloring_algo'
+	       id='coloring_algo_func'
+	       value='func'/>
+	<label for='coloring_algo_func'>By function</label>
+      </div>
+    </div>
+  </div>
+  <p>
+
+  <button data-dojo-attach-event='onClick:left_2'
+	  data-dojo-type='dijit/form/Button'
+	  >&lt;&lt;</button>
+  <button data-dojo-attach-event='onClick: left_1'
+	  data-dojo-type='dijit/form/Button'
+	  >&lt;</button>
+  <button data-dojo-attach-event='onClick: redraw'
+	  data-dojo-type='dijit/form/Button'
+	  >draw</button>
+  <button data-dojo-attach-event='onClick: right_1'
+	  data-dojo-type='dijit/form/Button'
+	  >&gt;</button>
+  <button data-dojo-attach-event='onClick: right_2'
+	  data-dojo-type='dijit/form/Button'
+	  >&gt;&gt;</button>
+  <div data-dojo-attach-point='canvas' style="border: 2px solid green"> </div>
 </div>

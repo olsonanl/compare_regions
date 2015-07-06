@@ -457,6 +457,14 @@ define([
 		glyph = this.make_rect(row, x1, x2, height);
 	    }
 
+	    /*
+	     * Pinned features are red.
+	     */
+	    if (feature.fid == row_data.pinned_peg)
+	    {
+		color = 'red';
+	    }
+
 	    if (feature.type !== 'intergenic')
 	    {
 		if (typeof feature.set_number === 'undefined')
