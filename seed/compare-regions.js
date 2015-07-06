@@ -768,7 +768,7 @@ define([
 		if (row_to_use < 0)
 		{
 		    row = this.compare_group.createGroup();
-		    row.setTransform({ dx: 0, dy: row_idx++ * this.row_height });
+		    row.setTransform({ dx: 0, dy: row_idx++ * this.row_height + this.compare_top_height });
 		    rows.push(row);
 		    row_to_use = rows.length - 1;
 		}
