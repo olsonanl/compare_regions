@@ -9,7 +9,8 @@
     // object *before* we load dojo.js; they're functionally identical,
     // it's just easier to read this approach with a larger configuration.
     var dojoConfig = {
-    async: true,
+	async: true,
+	parseOnLoad: false,
 	//	forceGfxRenderer:'canvas',
 	// This code registers the correct location of the "demo"
 	// package so we can load Dojo from the CDN whilst still
@@ -30,20 +31,20 @@ require(['dojo/dom',
 	 'dojo/parser',
 	 'dojo/ready'],
 	function (dom, compare, parser, ready) {
-	    window.console.log("loading!");
+	    window.console.log("loading page!");
 	    ready(function() {
-		window.console.log("ready!");
+		window.console.log("page ready!");
 		parser.parse();
 	    });
 	});
 
 </script>
 
-    <span data-dojo-type="seed.CompareRegionsWidget"
+    <div data-dojo-type="seed.CompareRegionsWidget"
 	  data-dojo-props="focus_feature: 'fig|83333.1.peg.4',
 			   service_url: 'http://localhost:6012/FIG/seed_svc.cgi',
 			   width: 16000,
-			   n_genomes: 15"></span>
+			   n_genomes: 15"></div>
 
 </body>
 </html>
