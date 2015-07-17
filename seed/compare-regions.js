@@ -104,6 +104,8 @@ define([
 	    this.viewport_width = this.container.clientWidth;
 	    this.canvas_offset = this.name_width + this.name_gutter;
 	    this.canvas_width = this.viewport_width - this.canvas_offset;
+	    window.console.log("pane sizes: vp_width=", this.viewport_width, " canvas_offset=", this.canvas_offset,
+			       " canvas_width=", this.canvas_width);
 	},
 
 	init_panes: function() {
@@ -220,19 +222,14 @@ define([
 		    {
 			pin_info = item;
 		    }
-		    if (item.strand === "-")
-		    {
-			endpoints.push([item.fid, item.end-0, 1, item.contig]);
-			endpoints.push([item.fid, item.beg-0, -1, item.contig]);
-		    }
-		    else
-		    {
-			endpoints.push([item.fid, item.beg-0, 1, item.contig]);
-			endpoints.push([item.fid, item.end-0, -1, item.contig]);
-		    }
+		    endpoints.push([item.fid, item.beg-0, 1, item.contig]);
+		    endpoints.push([item.fid, item.end-0, -1, item.contig]);
 		});
 
-		var center = pin_info.end;
+		// Setting center as the pin end instead of the midpoint 
+		// causes the pin to align on the stop; this is potentially more correct.
+		// var center = pin_info.end;
+		var center = row.mid;
 		
 		var mirror = pin_info.strand !== pin_direction;
 		
@@ -257,7 +254,7 @@ define([
 		    max_offset = right_offset;
 		    min_offset = left_offset;
 		}
-		// window.console.log("Row ", rowi, min_offset, max_offset);
+		window.console.log("Row ", rowi, min_offset, max_offset);
 		
 		/*
 		 * Add intergenic region features.
@@ -318,10 +315,12 @@ define([
 		    if (mirror)
 		    {
 			track_params[i].contig_to_screen = function(x) { x = 2 * c - x; return (x - (c - min_offset)) * scale };
+			window.console.log("row mirrored", rowi, center, min_offset, scale);
 		    }
 		    else
 		    {
 			track_params[i].contig_to_screen = function(x) { return (x - (c - min_offset)) * scale };
+			window.console.log("row not mirrored", rowi, center, min_offset, scale);
 		    }
 		})(rowi, center);
 	    }
@@ -332,6 +331,7 @@ define([
 	    var contig_range = max_offset + min_offset;
 	    
 	    var scale = this.canvas_width / contig_range;
+	    window.console.log("computed scale", this.canvas_width, min_offset, contig_range, scale);
 	    
 	    /*
 	     * With all that taken care of, we may begin rendering.
@@ -349,7 +349,7 @@ define([
 	    //	    console.log("ending row idx ", row_idx);
 	    var vp_height = row_idx * this.row_height + this.compare_top_height;
 	    domStyle.set(this.target_div, "height", vp_height + "px");
-	    this.compare_group.setClip({x: 0, y: 0, width: this.viewport_width, height: vp_height});
+	    this.compare_group.setClip({x: 100 * scale, y: 0, width: this.canvas_width - 200 * scale, height: vp_height});
 	    this.name_group.setClip({x: 0, y: 0, width: this.name_width, height: vp_height});
 	},
 
@@ -379,7 +379,7 @@ define([
 		else
 		{
 		    points = [x1, -height,
-			      x1, height,
+			      x1, height, 
 			      x2, 0,
 			      x1, -height];
 		}
@@ -400,10 +400,10 @@ define([
 		}
 		else
 		{
-		    points = [x2, -height,
-			      x2, height,
-			      x1, 0,
-			      x2, -height];
+		    points = [x2, 0,
+			      x1, -height,
+			      x1, height,
+			      x2, 0];
 		}
 	    }
 	    
@@ -443,7 +443,11 @@ define([
 	add_feature: function(row, row_data, x1, x2, height, color, feature, is_pin) {
 	    
 	    var glyph;
-	    if (feature.type === "peg")
+
+	    // Skip active sites for now.
+	    if (feature.type == "site_annotation")
+		return;
+	    if (feature.type === "peg" || feature.type === "domain_hit")
 	    {
 		glyph = this.make_arrow(row, x1, x2, height);
 	    }
@@ -462,7 +466,7 @@ define([
 	     */
 	    if (feature.fid == row_data.pinned_peg)
 	    {
-		color = 'red';
+		//color = 'red';
 	    }
 
 	    if (feature.type !== 'intergenic')
@@ -479,7 +483,7 @@ define([
 
 		    if (this.selected_fids[feature.fid])
 		    {
-			glyph.setStroke({width: 4});
+			glyph.setStroke({width: 3, cap: 'round'});
 		    }
 
 		    var t = row.createText({ text: feature.set_number, align: "center" });
@@ -623,13 +627,8 @@ define([
 	create_hover_text: function(feature, row_data) {
 	    var start = feature.beg;
 	    var stop = feature.end;
-	    if (feature.strand == "-")
-	    {
-		start = feature.end;
-		stop = feature.beg;
-	    }
 	    var size = feature.size + " bp";
-	    if (feature.type === "peg")
+	    if (feature.type === "peg" || feature.type === "domain_hit")
 	    {
 		size = size + " " + feature.size / 3 + " aa";
 	    }
@@ -694,7 +693,7 @@ define([
 	    var cx1 = track_info.contig_to_screen(l1);
 	    var cx2 = track_info.contig_to_screen(l2);
 
-	    // window.console.log(idx, row_idx, data.beg, data.end, boc, eoc, l1, l2, cx1, cx2);
+	    window.console.log(idx, row_idx, data.beg, data.end, boc, eoc, l1, l2, cx1, cx2);
 	    // window.console.log(JSON.stringify(data));
 
 	    if (boc)
@@ -728,7 +727,9 @@ define([
 
 		f.data_row_index = idx;
 		
-		var color = this.palette[f.set_number];
+		var cidx = f.set_number;
+		if (cidx == 1) cidx = 0;
+		var color = this.palette[cidx];
 		
 		var x1 = track_info.contig_to_screen(f.beg);
 		var x2 = track_info.contig_to_screen(f.end);

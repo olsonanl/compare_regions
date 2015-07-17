@@ -53,15 +53,17 @@
 	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='select_pinned_pegs'
+	       disabled
 	       id='select_pinned_pegs_kmer'
 	       value='kmer'/>
 	<label for='select_pinned_pegs_sim'>Kmer</label>
-	<input type='radio'
+<!--	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='select_pinned_pegs'
 	       id='select_pinned_pegs_pch'
 	       value='pch'/>
 	<label for='select_pinned_pegs_pch'>PCH pin</label>
+	-->
       </div>
       
       <div data-dojo-type="dijit/layout/ContentPane"
@@ -96,19 +98,19 @@
 	       name='genome_sort'
 	       id='genome_sort_sim'
 	       checked
-	       value='sim'/>
+	       value='similarity'/>
 	<label for='genome_sort_sim'>Similarity to input CDS</label>
 	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='genome_sort'
 	       id='genome_sort_input_phylo'
-	       value='input_phylo'/>
+	       value='phylogenetic_distance'/>
 	<label for='genome_sort_input_phylo'>Phylogenetic distance to input CDS</label>
 	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='genome_sort'
 	       id='genome_sort_phylo'
-	       value='phylo'/>
+	       value='phylogeny'/>
 	<label for='genome_sort_phylo'>Phylogeny</label>
       </div>
       <input id='pin_cutoff'
@@ -135,22 +137,23 @@
 	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='coloring_algo'
-	       id='coloring_algo_fast'
+	       id='coloring_algo_sim'
 	       checked
-	       value='fast'/>
-	<label for='coloring_algo_fast'>Fast</label>
-	<input type='radio'
-	       data-dojo-type="dijit.form.RadioButton"
-	       name='coloring_algo'
-	       id='coloring_algo_slow'
-	       value='slow'/>
-	<label for='coloring_algo_slow'>Slower (but exact)</label>
+	       value='sim'/>
+	<label for='coloring_algo_sim'>Similarity</label>
 	<input type='radio'
 	       data-dojo-type="dijit.form.RadioButton"
 	       name='coloring_algo'
 	       id='coloring_algo_func'
 	       value='function'/>
 	<label for='coloring_algo_func'>By function</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='coloring_algo'
+	       disabled
+	       id='coloring_algo_kmer'
+	       value='kmer'/>
+	<label for='coloring_algo_kmer'>By kmers in common</label>
       </div>
     </div>
   </div>
@@ -176,5 +179,11 @@
 	  data-dojo-type='dijit/form/Button'
 	  data-dojo-attach-point='button_right_2'
 	  >&gt;&gt;</button>
-  <div data-dojo-attach-point='canvas' style="border: 2px solid green"> </div>
+  <div id="${id}-canvas" 
+       data-dojo-attach-point='canvas' 
+       style="border: 2px solid green"> </div>
+  <div id="${id}-standby"
+       data-dojo-type="dojox.widget.Standby" 
+       data-dojo-attach-point='standby'
+       data-dojo-props="target: '${id}-canvas'"></div>
 </div>

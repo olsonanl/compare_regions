@@ -19,6 +19,11 @@ define([
 
 	},
 
+	compare_regions: function (compare_opts, _callback, _errorCallback) {
+	    return this.json_call_ajax("SEED.compare_regions",
+				  [compare_opts], 1, _callback, _errorCallback);
+	},
+
 	compare_regions_for_peg: function (peg, width, n_genomes, coloring_method, _callback, _errorCallback) {
 	    return this.json_call_ajax("SEED.compare_regions_for_peg",
 				  [peg, width, n_genomes, coloring_method], 1, _callback, _errorCallback);

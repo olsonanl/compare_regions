@@ -8,6 +8,7 @@ define([
     'dijit/_AttachMixin',
     'dijit/_TemplatedMixin',
     'dijit/_WidgetsInTemplateMixin',
+    'dojox/widget/Standby',
     'dojo/text!seed/seed-compare-template.html',
     'seed/compare-regions',
     'seed/SEEDClient',
@@ -21,7 +22,9 @@ define([
     'dijit/form/CheckBox',
     'dijit/form/NumberTextBox'
 ], function(declare, parser, ready, domStyle, query, _Widget, _AttachMixin, 
-	    _TemplatedMixin, _WidgetsInTemplateMixin, template,
+	    _TemplatedMixin, _WidgetsInTemplateMixin, 
+	    Standby,
+	    template,
 	    CompareRegions, SEEDClient) {
     declare("seed.CompareRegionsWidget", [_Widget, _TemplatedMixin, _WidgetsInTemplateMixin], {
 
@@ -35,12 +38,17 @@ define([
 	color_mode: 'blast',
 	focus_feature: null,
 	compare_regions: null,
+	selected_features: [],
 
 	templateString: template,
 
 	postCreate: function() {
 	    window.console.log("post create");
 	    this.inherited(arguments);
+
+
+	    this.region_size.set('value', this.width);
+	    this.n_regions.set('value', this.n_genomes);
 	    // this.button_left_2.connect("onClick", function() { window.console.log("left2"); });
 	},
 	
@@ -57,6 +65,10 @@ define([
 		this.render();
 	    }.bind(this));
 
+	    this.compare_regions.on("selection_change", function(evt) {
+		this.selected_features = evt.selected_features;
+	    }.bind(this));
+	    
 	    this.service.get_palette('compare_region', function(palette) {
 		this.compare_regions.set_palette(palette);
 		this.render();
@@ -78,6 +90,35 @@ define([
 			       this.coloring_cutoff.get('value')
 			      );
 
+	    var compare_opts = { pin: [this.focus_feature],
+				 n_genomes: this.n_regions.get('value'),
+				 width: this.region_size.get('value'),
+				 pin_compute_method:  select_pinned_pegs,
+				 sim_cutoff: this.pin_cutoff.get('value'),
+				 limit_to_genomes: [],
+				 close_genome_collapse: genome_selection,
+				 coloring_method: coloring_algo,
+				 color_sim_cutoff: this.coloring_cutoff.get('value'),
+				 genome_sort_method: genome_sort,
+				 features_for_cdd: this.selected_features,
+				 pin_alignment: 'stop'
+			       };
+	    window.console.log(compare_opts);
+
+	    this.standby.show();
+	    this.service.compare_regions(compare_opts, 	
+					 function(data) {
+					     this.standby.hide(),
+					     this.compare_regions.set_data(data);
+					     this.compare_regions.render();
+					 }.bind(this),
+					 function(err) {
+					     this.standby.hide();
+					     window.console.log("compare error", err);
+					 }.bind(this)
+					 );
+
+/*
 	    this.service.compare_regions_for_peg(this.focus_feature,
 						 this.region_size.get('value'),
 						 this.n_regions.get('value'),
@@ -86,6 +127,7 @@ define([
 						     this.compare_regions.set_data(data);
 						     this.compare_regions.render();
 						 }.bind(this));
+*/
 	},
 
 	left_2: function(evt) {
