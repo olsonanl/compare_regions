@@ -29,7 +29,7 @@ define([
 	 * adjusted after rendering (it is dependent on the number of rows we generate).
 	 */
 	viewport_width: null,
-	viewport_default_height: 1000,
+	viewport_default_height: 2000,
 	canvas_width: null,
 	canvas_offset: null,
 	name_width: 250,
@@ -83,6 +83,8 @@ define([
 	    this.init_panes();
 
 	},
+
+			   create_patterns: function()
 
 	set_palette: function(palette)
 	{
@@ -232,7 +234,8 @@ define([
 		    }
 		});
 
-		var center = pin_info.end;
+		// var center = pin_info.end;
+		var center = pin_info.reference_point;
 		
 		var mirror = pin_info.strand !== pin_direction;
 		
