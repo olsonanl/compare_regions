@@ -10,6 +10,7 @@
     // it's just easier to read this approach with a larger configuration.
     var dojoConfig = {
 	async: true,
+	parseOnLoad: false,
 	//	forceGfxRenderer:'canvas',
 	// This code registers the correct location of the "demo"
 	// package so we can load Dojo from the CDN whilst still
@@ -27,10 +28,14 @@
     <script type="text/javascript">
 require(['dojo/dom',
 	 'seed/seed-compare-widget',
-	 'dojo/domReady!'],
-	function (dom) {
-	    
-	    window.console.log("loading!");
+	 'dojo/parser',
+	 'dojo/ready'],
+	function (dom, compare, parser, ready) {
+	    window.console.log("loading page!");
+	    ready(function() {
+		window.console.log("page ready!");
+		parser.parse();
+	    });
 	});
 
 </script>
