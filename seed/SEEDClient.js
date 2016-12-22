@@ -24,9 +24,9 @@ define([
 				  [compare_opts], 1, _callback, _errorCallback);
 	},
 
-	compare_regions_for_peg: function (peg, width, n_genomes, coloring_method, _callback, _errorCallback) {
+	compare_regions_for_peg: function (peg, width, n_genomes, coloring_method, genome_filter, _callback, _errorCallback) {
 	    return this.json_call_ajax("SEED.compare_regions_for_peg",
-				  [peg, width, n_genomes, coloring_method], 1, _callback, _errorCallback);
+				       [peg, width, n_genomes, coloring_method, genome_filter], 1, _callback, _errorCallback);
 	},
 
 	get_ncbi_cdd_url: function (feature, _callback, _errorCallback) {
@@ -68,9 +68,14 @@ define([
 	},
 
 
-	get_translation: function (fids, _callback, _errorCallback) {
+	get_translation: function (fids, _callback, _errorCallback, _syncFlag) {
 	    return this.json_call_ajax("SEED.get_translation",
-				  [fids], 1, _callback, _errorCallback);
+				       [fids], 1, _callback, _errorCallback, _syncFlag);
+	},
+
+	get_dna_seq: function (fids, _callback, _errorCallback, _syncFlag) {
+	    return this.json_call_ajax("SEED.get_dna_seq",
+				       [fids], 1, _callback, _errorCallback, _syncFlag);
 	},
 
 
@@ -84,7 +89,7 @@ define([
 				  [genomes, type], 1, _callback, _errorCallback);
 	},
 
-	json_call_ajax: function(method, params, numRets, callback, errorCallback) {
+	json_call_ajax: function(method, params, numRets, callback, errorCallback, syncFlag) {
 
             var rpc = {
 		params : params,
@@ -106,7 +111,8 @@ define([
 
 	    var promise = xhr.post(this.url, {
 		data: JSON.stringify(rpc),
-		headers: headers
+		headers: headers,
+		sync: syncFlag
 	    });
 
 	    promise.then(function (data)

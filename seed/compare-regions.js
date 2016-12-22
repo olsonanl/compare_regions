@@ -29,7 +29,7 @@ define([
 	 * adjusted after rendering (it is dependent on the number of rows we generate).
 	 */
 	viewport_width: null,
-	viewport_default_height: 2000,
+	viewport_default_height: 40000,
 	canvas_width: null,
 	canvas_offset: null,
 	name_width: 250,
@@ -83,8 +83,6 @@ define([
 	    this.init_panes();
 
 	},
-
-			   create_patterns: function()
 
 	set_palette: function(palette)
 	{
@@ -206,6 +204,7 @@ define([
 	    this.set_group_transforms();
 	    
 	    var pin_direction = data[0].pinned_peg_strand;
+	    //var pin_direction = "+";
 	    var max_offset, min_offset;
 	    var track_params = [];
 	    var intergenic_count = 0;
@@ -249,6 +248,12 @@ define([
 		    
 		}
 		// window.console.log(rowi, center, track_min, track_max, left_offset, right_offset);
+
+		/*
+		 * Set offsets based only on first row. An accurate dataset coming into here
+		 * will have the data aligned properly; there's nothing we can really do anyway.
+		 */
+		/*
 		if (typeof(max_offset) === "number")
 		{
 		    max_offset = Math.max(max_offset, right_offset);
@@ -259,7 +264,13 @@ define([
 		    max_offset = right_offset;
 		    min_offset = left_offset;
 		}
-		window.console.log("Row ", rowi, min_offset, max_offset);
+		*/
+		if (rowi == 0)
+		{
+		    max_offset = right_offset;
+		    min_offset = left_offset;
+		}
+		// window.console.log("Row ", rowi, min_offset, max_offset);
 		
 		/*
 		 * Add intergenic region features.
@@ -315,28 +326,33 @@ define([
 				       right_offset: right_offset,
 				       left_offset: left_offset };
 		
-		(function(i, c) {
+		/*
+		(function(i, c, m, mr) {
 		    
-		    if (mirror)
+		    if (mr)
 		    {
-			track_params[i].contig_to_screen = function(x) { x = 2 * c - x; return (x - (c - min_offset)) * scale };
-			window.console.log("row mirrored", rowi, center, min_offset, scale);
+			track_params[i].contig_to_screen = function(x) { x = 2 * c - x; return (x - (c - m)) * scale };
+			window.console.log("row mirrored", rowi, center, m, scale);
 		    }
 		    else
 		    {
-			track_params[i].contig_to_screen = function(x) { return (x - (c - min_offset)) * scale };
-			window.console.log("row not mirrored", rowi, center, min_offset, scale);
+			track_params[i].contig_to_screen = function(x) { return (x - (c - m)) * scale };
+			window.console.log("row not mirrored", rowi, center, m, scale);
 		    }
-		})(rowi, center);
+		})(rowi, center, min_offset, mirror);
+		*/
 	    }
 	    
 	    max_offset += 100;
 	    min_offset += 100;
 	    
 	    var contig_range = max_offset + min_offset;
+
+	    this.min_offset = min_offset;
 	    
 	    var scale = this.canvas_width / contig_range;
 	    window.console.log("computed scale", this.canvas_width, min_offset, contig_range, scale);
+	    this.scale = scale;
 	    
 	    /*
 	     * With all that taken care of, we may begin rendering.
@@ -353,6 +369,7 @@ define([
 	    }
 	    //	    console.log("ending row idx ", row_idx);
 	    var vp_height = row_idx * this.row_height + this.compare_top_height;
+	    console.log("set viewport height " + vp_height);
 	    domStyle.set(this.target_div, "height", vp_height + "px");
 	    this.compare_group.setClip({x: 100 * scale, y: 0, width: this.canvas_width - 200 * scale, height: vp_height});
 	    this.name_group.setClip({x: 0, y: 0, width: this.name_width, height: vp_height});
@@ -449,11 +466,18 @@ define([
 	    
 	    var glyph;
 
+	    var make_bg = function() {
+		// Draw a background highlight.
+		var bg = this.make_rect(row, x1, x2, height+4);
+		bg.setFill('rgb(220,220,220)');
+	    }.bind(this);
+
 	    // Skip active sites for now.
 	    if (feature.type == "site_annotation")
 		return;
 	    if (feature.type === "peg" || feature.type === "domain_hit")
 	    {
+		//make_bg();
 		glyph = this.make_arrow(row, x1, x2, height);
 	    }
 	    else if (feature.type === "intergenic")
@@ -464,19 +488,33 @@ define([
 	    else
 	    {
 		glyph = this.make_rect(row, x1, x2, height);
+
+		if (feature.type === "blast")
+		{
+		    var sat = Math.trunc(feature.blast_identity);
+		    
+		    var rgb = this.hsvToRgb(0, sat, 100);
+
+		    color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+		    // console.log("have blast feature " + feature.blast_identity + " " + rgb + " " + color)
+		}
 	    }
 
 	    /*
 	     * Pinned features are red.
 	     */
-	    if (feature.fid == row_data.pinned_peg)
+	    if (feature.fid == row_data.pinned_peg && typeof feature.blast_identity !== "undefined")
 	    {
-		//color = 'red';
+		var sat = Math.trunc(feature.blast_identity);
+		
+		var rgb = this.hsvToRgb(0, sat, 100);
+		
+		color = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
 	    }
 
 	    if (feature.type !== 'intergenic')
 	    {
-		if (typeof feature.set_number === 'undefined')
+		if (typeof color === 'undefined')
 		{
 		    glyph.setFill('gray');
 		    glyph.setStroke('black');
@@ -491,11 +529,14 @@ define([
 			glyph.setStroke({width: 3, cap: 'round'});
 		    }
 
-		    var t = row.createText({ text: feature.set_number, align: "center" });
-		    
-		    // t.setStroke("black");
-		    t.setFill("black");
-		    t.setTransform({dx: Math.round((x1 + x2) / 2), dy: -9, xx: 0.7, yy: 0.7});
+		    if (typeof feature.set_number !== 'undefined')
+		    {
+			var t = row.createText({ text: feature.set_number, align: "center" });
+			
+			// t.setStroke("black");
+			t.setFill("black");
+			t.setTransform({dx: Math.round((x1 + x2) / 2), dy: -9, xx: 0.7, yy: 0.7});
+		    }
 		}
 	    }
 
@@ -516,6 +557,7 @@ define([
 	    /*
 	     * for singleclick selection, we want a delay to disambiguate from doubleclick.
 	     */
+	    if (1) {
 	    glyph.on("click", function(evt) {
 		window.console.log("click alt=" + evt.altKey + " ctrl=" + evt.ctrlKey + " shift=" + evt.shiftKey + " which=" + evt.which);
 
@@ -607,9 +649,9 @@ define([
 		    menu.startup();
 
 		    popup.open({ popup: menu,
-				 parent: this.container,
-				 x: evt.clientX - 5,
-				 y: evt.clientY - 5,
+				 parent: this.container.parent,
+				 x: evt.pageX - 15,
+				 y: evt.pageY - 15,
 				 orient: ["below"],
 				 onExecute: function(evt) {
 				     window.console.log("Execute", JSON.stringify(evt));
@@ -626,7 +668,8 @@ define([
 
 		    evt.preventDefault();
 		}.bind(this));
-	    }	    
+	    }
+	    }
 	},
 
 	create_hover_text: function(feature, row_data) {
@@ -657,6 +700,13 @@ define([
 		    ss_title = "";
 		});
 	    }
+	    if (typeof feature.attributes === 'object')
+	    {
+		feature.attributes.forEach(function(attr) {
+		    feature_info.push(attr);
+		});
+	    }
+	    
 
 	    var feature_info_str = "<table><tr><th colspan='2'>Feature</th></tr>";
 	    feature_info.forEach(function(item) {
@@ -664,6 +714,18 @@ define([
 	    });
 	    feature_info_str += "</table>";
 	    return feature_info_str;
+	},
+
+	contig_to_screen: function(track_info, x) {
+	    if (track_info.mirror)
+	    {
+		x = 2 * track_info.center - x;
+		return (x - (track_info.center - this.min_offset)) * this.scale;
+	    }
+	    else
+	    {
+		return (x - (track_info.center - this.min_offset)) * this.scale;
+	    }
 	},
 
 	add_row: function(idx, data, track_info, row_idx) {
@@ -675,6 +737,9 @@ define([
             var row = this.compare_group.createGroup();
 	    row.setTransform({ dx: 0, dy: y });
 
+	    // console.log("add_row ");
+	    // console.log(track_info);
+	    
 	    rows[0] = row;
 
 	    //
@@ -695,10 +760,12 @@ define([
 		eoc = 1;
 	    }
 	    
-	    var cx1 = track_info.contig_to_screen(l1);
-	    var cx2 = track_info.contig_to_screen(l2);
+	    //var cx1 = track_info.contig_to_screen(l1);
+	    //var cx2 = track_info.contig_to_screen(l2);
+	    var cx1 = this.contig_to_screen(track_info, l1);
+	    var cx2 = this.contig_to_screen(track_info, l2);
 
-	    window.console.log(idx, row_idx, data.beg, data.end, boc, eoc, l1, l2, cx1, cx2);
+	    // window.console.log(idx, row_idx, data.beg, data.end, boc, eoc, l1, l2, cx1, cx2);
 	    // window.console.log(JSON.stringify(data));
 
 	    if (boc)
@@ -733,11 +800,58 @@ define([
 		f.data_row_index = idx;
 		
 		var cidx = f.set_number;
-		if (cidx == 1) cidx = 0;
-		var color = this.palette[cidx];
+		var color = undefined;;
+		if (typeof cidx !== 'undefined')
+		{
+		    if (cidx == 1) cidx = 0;
+		    var n = this.palette.length;
+		    color = this.palette[cidx % n];
+		    var cycle = Math.trunc(cidx / n);
+		    // console.log("cycle=" + cycle);
+
+		    // cycle = 0;
+		    if (cycle == 1)
+		    {
+			color = { type: "linear",
+				  x1: 0, y1: 0,
+				  x2: 0, y2: 10,
+				  colors: [{ offset: 0, color: "#fff" },
+					   { offset: 1, color: color }],
+				};
+		    }
+		    else if (cycle == 2)
+		    {
+			color = { type: "linear",
+				  x1: 0, y1: 10,
+				  x2: 0, y2: 0,
+				  colors: [{ offset: 0, color: "#fff" },
+					   { offset: 1, color: color }],
+				};
+		    }
+		    else if (cycle == 3)
+		    {
+			color = { type: "linear",
+				  x1: 0, y1: 10,
+				  x2: 0, y2: 10,
+				  colors: [{ offset: 0, color: "#fff" },
+					   { offset: 1, color: color }],
+				};
+		    }
+		    else if (cycle == 4)
+		    {
+			color = { type: "linear",
+				  x1: 0, y1: 7,
+				  x2: 0, y2: 0,
+				  colors: [{ offset: 0, color: "#fff" },
+					   { offset: 1, color: color }],
+				};
+		    }
+		}
 		
-		var x1 = track_info.contig_to_screen(f.beg);
-		var x2 = track_info.contig_to_screen(f.end);
+		var x1 = this.contig_to_screen(track_info, f.beg);
+		var x2 = this.contig_to_screen(track_info, f.end);
+		//var x1 = track_info.contig_to_screen(f.beg);
+		//var x2 = track_info.contig_to_screen(f.end);
 		
 		var left, right;
 		if (x1 < x2)
@@ -794,6 +908,88 @@ define([
 	    
 	    return [rows, row_idx];
 	},
+
+
+/**
+   http://snipplr.com/view.php?codeview&id=14590
+    * HSV to RGB color conversion
+     *
+      * H runs from 0 to 360 degrees
+       * S and V run from 0 to 100
+        *
+	 * Ported from the excellent java algorithm by Eugene Vishnevsky at:
+	  * http://www.cs.rit.edu/~ncs/color/t_convert.html
+	   */
+	hsvToRgb: function(h, s, v) {
+	    var r, g, b;
+	    var i;
+	    var f, p, q, t;
+
+	    // Make sure our arguments stay in-range
+	    h = Math.max(0, Math.min(360, h));
+	    s = Math.max(0, Math.min(100, s));
+	    v = Math.max(0, Math.min(100, v));
+
+	    // We accept saturation and value arguments from 0 to 100 because that's
+	    // how Photoshop represents those values. Internally, however, the
+	    // saturation and value are calculated from a range of 0 to 1. We make
+	    // That conversion here.
+	    s /= 100;
+	    v /= 100;
+
+	    if(s == 0) {
+		// Achromatic (grey)
+		r = g = b = v;
+		return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+	    }
+
+	    h /= 60; // sector 0 to 5
+	    i = Math.floor(h);
+	    f = h - i; // factorial part of h
+	    p = v * (1 - s);
+	    q = v * (1 - s * f);
+	    t = v * (1 - s * (1 - f));
+
+	    switch(i) {
+	    case 0:
+		r = v;
+		g = t;
+		b = p;
+		break;
+
+	    case 1:
+		r = q;
+		g = v;
+		b = p;
+		break;
+
+	    case 2:
+		r = p;
+		g = v;
+		b = t;
+		break;
+
+	    case 3:
+		r = p;
+		g = q;
+		b = v;
+		break;
+
+	    case 4:
+		r = t;
+		g = p;
+		b = v;
+		break;
+
+	    default: // case 5:
+		r = v;
+		g = p;
+		b = q;
+	    }
+
+	    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+	},
+
 
 	sample_data: function() {
 var x = 

@@ -106,6 +106,7 @@ define([
 	    window.console.log(compare_opts);
 
 	    this.standby.show();
+/*
 	    this.service.compare_regions(compare_opts, 	
 					 function(data) {
 					     this.standby.hide(),
@@ -117,17 +118,25 @@ define([
 					     window.console.log("compare error", err);
 					 }.bind(this)
 					 );
-
-/*
+*/
+/**/
+	    var genome_filter = undefined;
 	    this.service.compare_regions_for_peg(this.focus_feature,
 						 this.region_size.get('value'),
 						 this.n_regions.get('value'),
 						 coloring_algo,
+						 genome_filter,
 						 function(data) {
+						     this.standby.hide();
 						     this.compare_regions.set_data(data);
 						     this.compare_regions.render();
+						 }.bind(this),
+						 function(err) {
+						     this.standby.hide();
+						     window.console.log("compare error", err);
 						 }.bind(this));
-*/
+						     
+/**/
 	},
 
 	left_2: function(evt) {

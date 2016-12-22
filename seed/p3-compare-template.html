@@ -1,0 +1,144 @@
+<div>
+  <div data-dojo-type="dojox.layout.TableContainer" data-dojo-props="cols:1" labelWidth="150">
+    <div data-dojo-type="dijit/layout/ContentPane" title="Pinned CDS selection">
+      <input type='radio'  style="padding: none"
+	     name='display_options'
+	     checked
+	     id='display_options_regular'
+	     data-dojo-type="dijit.form.RadioButton"
+	     data-dojo-attach-event="change:display_regular"
+	     value='regular'/>
+      <label for='display_options_regular'>Regular</label>
+      <input type='radio' style="padding: none"
+	     name='display_options'
+	     data-dojo-type="dijit.form.RadioButton"
+	     id='display_options_advanced'
+	     value='advanced'/>
+      <label for='display_options_advanced'>Advanced</label>
+    </div>
+
+    <input id='region_size'
+	   type='text'
+	   title="Region Size (bp)"
+	   data-dojo-type='dijit/form/NumberTextBox'
+	   data-dojo-attach-point='region_size'
+	   name='region_size'
+	   required='true'
+	   value='16000'
+	   data-dojo-props='constraints: { min: 0, places: 0 }'
+	   />
+    <input id='focus_feature'
+	   type='text'
+	   title="Focus"
+	   data-dojo-type='dijit/form/TextBox'
+	   data-dojo-attach-point='focus_feature'
+	   name='focus_feature'
+	   required='true'
+	   />
+    <input id='n_regions'
+	   title='Number of Regions',
+	   type='text'
+	   data-dojo-type='dijit/form/NumberTextBox'
+	   data-dojo-attach-point='n_regions'
+	   name='n_regions'
+	   required='true'
+	   value='15'
+	   data-dojo-props='constraints: { min: 1, places: 0 }'
+	   />
+  </div>
+  <div title="Advanced settings" data-dojo-attach-point="advanced_settings">
+    <div data-dojo-type="dojox.layout.TableContainer" data-dojo-props="cols:1" labelWidth="150">
+      <div data-dojo-type="dijit/layout/ContentPane"
+	   data-dojo-attach-point="select_pinned_pegs_group"
+	   title="Pinned CDS selection" style="padding: 0;  ">
+	<input type='radio'
+	       name='select_pinned_pegs'
+	       data-dojo-type="dijit.form.RadioButton"
+	       checked
+	       id='select_pinned_pegs_pgfam'
+	       value='pgfam'/>
+	<label for='select_pinned_pegs_pgfam'>Global families</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='select_pinned_pegs'
+	       id='select_pinned_pegs_plfam'
+	       value='plfam'/>
+	<label for='select_pinned_pegs_plfam'>Local families</lael>
+      </div>
+      
+      <div data-dojo-type="dijit/layout/ContentPane"
+	   data-dojo-attach-point="genome_selection_group"
+	   title="Genome selection" style="padding: 0;  ">
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='genome_selection'
+	       id='genome_selection_reference'
+	       value='reference'/>
+	<label for='genome_selection_reference'>P3 Reference Genomes</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='genome_selection'
+	       id='genome_selection_representative'
+	       value='representative'/>
+	<label for='genome_selection_representative'>P3 Representative Genomes</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='genome_selection'
+	       checked
+	       id='genome_selection_reference_representative'
+	       value='representative+reference'/>
+	<label for='genome_selection_reference_representative'>P3 Reference+Representative Genomes</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='genome_selection'
+	       id='genome_selection_group'
+	       value='group'/>
+	<label for='genome_selection_reference_representative'>Genome group</label>
+	<input type='radio'
+	       data-dojo-type="dijit.form.RadioButton"
+	       name='genome_selection'
+	       id='genome_selection_all'
+	       value='all'/>
+	<label for='genome_selection_all'>Show all</label>
+      </div>
+      <input id='genome_group'
+	     title='Genome group'
+	     type='text'
+	     data-dojo-type='dijit/form/TextBox'
+	     data-dojo-attach-point='genome_group'
+	     name='genome_group'
+	     required='false'
+	     value=''
+	     />
+    </div>
+  </div>
+  <p>
+
+  <button data-dojo-attach-event='click:left_2'
+	  data-dojo-type='dijit/form/Button'
+	  data-dojo-attach-point='button_left_2'
+	  >&lt;&lt;</button>
+  <button data-dojo-attach-event='click:left_1'
+	  data-dojo-type='dijit/form/Button'
+	  data-dojo-attach-point='button_left_1'
+	  >&lt;</button>
+  <button data-dojo-attach-event='click:render'
+	  data-dojo-type='dijit/form/Button'
+	  data-dojo-attach-point='button_redraw'
+	  >draw</button>
+  <button data-dojo-attach-event='click:right_1'
+	  data-dojo-type='dijit/form/Button'
+	  data-dojo-attach-point='button_right_1'
+	  >&gt;</button>
+  <button data-dojo-attach-event='click:right_2'
+	  data-dojo-type='dijit/form/Button'
+	  data-dojo-attach-point='button_right_2'
+	  >&gt;&gt;</button>
+  <div id="${id}-canvas" 
+       data-dojo-attach-point='canvas' 
+       style="border: 2px solid green"> </div>
+  <div id="${id}-standby"
+       data-dojo-type="dojox.widget.Standby" 
+       data-dojo-attach-point='standby'
+       data-dojo-props="target: '${id}-canvas'"></div>
+</div>

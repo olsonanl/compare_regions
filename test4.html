@@ -11,7 +11,7 @@
     var dojoConfig = {
 	async: true,
 	parseOnLoad: false,
-	//	forceGfxRenderer:'canvas',
+	//forceGfxRenderer:'canvas',
 	// This code registers the correct location of the "demo"
 	// package so we can load Dojo from the CDN whilst still
 	// being able to load local modules
@@ -27,7 +27,7 @@
   <body class="claro">
     <script type="text/javascript">
 require(['dojo/dom',
-	 'seed/seed-compare-widget',
+	 'seed/p3-compare-widget',
 	 'dojo/parser',
 	 'dojo/ready'],
 	function (dom, compare, parser, ready) {
@@ -40,11 +40,11 @@ require(['dojo/dom',
 
 </script>
 
-    <span data-dojo-type="seed.CompareRegionsWidget"
+    <span data-dojo-type="seed.P3CompareRegionsWidget"
 	  data-dojo-props="focus_feature: 'fig|83332.12.peg.5',
 			   service_url: 'http://localhost:6012/FIG/seed_svc.cgi',
-			   width: 15000,
-			   n_genomes: 25"></span>
+			   width: 10000,
+			   n_genomes: 5"></span>
 
 </body>
 </html>
